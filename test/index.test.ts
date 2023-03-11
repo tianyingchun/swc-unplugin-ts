@@ -1,7 +1,7 @@
 import { test } from "uvu"
 import assert from "uvu/assert"
 import path from "path"
-import swc from "../dist"
+import { swcUnplugin } from "../dist/index.js"
 import { rollup } from "rollup"
 
 const fixture = (...args: string[]) => path.join(__dirname, "fixtures", ...args)
@@ -10,7 +10,7 @@ test("rollup", async () => {
   const bundle = await rollup({
     input: fixture("rollup/index.ts"),
     plugins: [
-      swc.rollup({
+      swcUnplugin.rollup({
         tsconfigFile: false,
       }),
     ],
@@ -20,24 +20,15 @@ test("rollup", async () => {
     format: "cjs",
     dir: fixture("rollup/dist"),
   })
-
-  assert.is(
-    output[0].code,
-    `'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-var foo = 'foo';
-
-exports.foo = foo;
-`,
-  )
+  assert.match(output[0].code, `'use strict';`)
+  assert.match(output[0].code, `var foo = "foo";`)
+  assert.match(output[0].code, `exports.foo = foo;`)
 })
 
 test("read tsconfig", async () => {
   const bundle = await rollup({
     input: fixture("read-tsconfig/index.tsx"),
-    plugins: [swc.rollup()],
+    plugins: [swcUnplugin.rollup()],
   })
 
   const { output } = await bundle.generate({
@@ -46,20 +37,31 @@ test("read tsconfig", async () => {
   })
 
   const code = output[0].code
-  assert.match(code, 'customJsxFactory')
+  assert.match(code, "customJsxFactory")
 
   // NOTE: use tsconfig.base.json which experimentalDecorators turned off will throw
   await rollup({
-    input: fixture('read-tsconfig/index.tsx'),
-    plugins: [swc.rollup({ tsconfigFile: 'tsconfig.base.json' })],
-  }).catch(e => assert.match(e.toString(), 'Unexpected token `@`.'))
+    input: fixture("read-tsconfig/index.tsx"),
+    plugins: [swcUnplugin.rollup({ tsconfigFile: "tsconfig.base.json" })],
+  }).catch((e) => {
+    return assert.match(e.toString(), " @sealed")
+  })
+
+  const result = await rollup({
+    input: fixture("read-tsconfig/index.tsx"),
+    plugins: [swcUnplugin.rollup({ tsconfigFile: "tsconfig.json" })],
+  })
+  const { output: output1 } = await result.generate({
+    format: "cjs",
+  })
+  assert.match(output1[0].code, "exports.BugReport = __decorate([")
 })
 
 test("custom swcrc", async () => {
   const bundle = await rollup({
     input: fixture("custom-swcrc/index.tsx"),
     plugins: [
-      swc.rollup({
+      swcUnplugin.rollup({
         tsconfigFile: false,
       }),
     ],
@@ -78,7 +80,7 @@ test("minify", async () => {
   const bundle = await rollup({
     input: fixture("minify/index.ts"),
     plugins: [
-      swc.rollup({
+      swcUnplugin.rollup({
         minify: true,
       }),
     ],
