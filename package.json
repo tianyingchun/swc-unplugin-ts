@@ -13,7 +13,8 @@
   },
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "index.js"
   ],
   "scripts": {
     "build": "tsc -p ./tsconfig.build.json",
@@ -21,18 +22,18 @@
     "test": "npm run build && uvu -r esbuild-register --ignore fixtures"
   },
   "dependencies": {
-    "unplugin": "^1.3.0",
-    "defu": "^6.1.2"
+    "@rollup/pluginutils": "^5.0.2",
+    "defu": "^6.1.2",
+    "load-tsconfig": "^0.2.3",
+    "path-exists": "^5.0.0",
+    "unplugin": "^1.3.0"
   },
   "devDependencies": {
     "@egoist/prettier-config": "1.0.0",
-    "@rollup/pluginutils": "^5.0.2",
     "@swc/core": "^1.3.39",
     "@types/node": "^18.15.0",
     "esbuild": "0.17.11",
     "esbuild-register": "^3.4.2",
-    "load-tsconfig": "^0.2.3",
-    "path-exists": "^5.0.0",
     "prettier": "2.8.4",
     "rollup": "^3.19.1",
     "typescript": "4.9.5",
