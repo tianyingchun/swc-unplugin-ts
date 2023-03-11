@@ -1,22 +1,20 @@
 import fs from "fs"
-import path from "path"
+import { dirname, join, resolve } from "path"
 import { pathExists } from "path-exists"
 
 const RESOLVE_EXTENSIONS = [".tsx", ".ts", ".jsx", ".js", ".mjs", ".cjs"]
 
 const resolveFile = async (resolved: string, index = false) => {
   for (const ext of RESOLVE_EXTENSIONS) {
-    const file = index
-      ? path.join(resolved, `index${ext}`)
-      : `${resolved}${ext}`
+    const file = index ? join(resolved, `index${ext}`) : `${resolved}${ext}`
     if (await pathExists(file)) return file
   }
 }
 
 export const resolveId = async (importee: string, importer?: string) => {
   if (importer && importee[0] === ".") {
-    const absolutePath = path.resolve(
-      importer ? path.dirname(importer) : process.cwd(),
+    const absolutePath = resolve(
+      importer ? dirname(importer) : process.cwd(),
       importee,
     )
 

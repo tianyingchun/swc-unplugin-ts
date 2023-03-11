@@ -1,10 +1,10 @@
 import path from "path"
-import defu from "defu"
+import { defu } from "defu"
 import { createUnplugin } from "unplugin"
 import { createFilter } from "@rollup/pluginutils"
 import { loadTsConfig } from "load-tsconfig"
 import { JscConfig, Options as SwcOptions, transform } from "@swc/core"
-import { resolveId } from "./resolve"
+import { resolveId } from "./resolve.js"
 
 type FilterPattern = ReadonlyArray<string | RegExp> | string | RegExp | null
 
@@ -14,7 +14,7 @@ export interface UnpluginSwcOptions extends Omit<SwcOptions, "exclude"> {
   tsconfigFile?: string | boolean
 }
 
-export default createUnplugin(
+export const swcUnplugin = createUnplugin(
   ({
     tsconfigFile,
     minify,
