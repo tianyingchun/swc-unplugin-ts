@@ -9,6 +9,6 @@
     "rootDir": "./src",
     "baseUrl": "./"
   },
-  "include": ["./src/index.ts"],
+  "include": ["./src/index.ts", "index.d.ts"],
   "exclude": ["**/*.stories.tsx", "**/*.stories.mdx", ".storybook/**"]
 }

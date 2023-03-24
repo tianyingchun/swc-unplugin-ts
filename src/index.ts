@@ -1,20 +1,20 @@
-import path from "path"
-import { defu } from "defu"
-import { createUnplugin } from "unplugin"
-import { createFilter } from "@rollup/pluginutils"
-import { loadTsConfig } from "load-tsconfig"
-import { JscConfig, Options as SwcOptions, transform } from "@swc/core"
-import { resolveId } from "./resolve.js"
+import path from 'path';
+import { defu } from 'defu';
+import { createUnplugin } from 'unplugin';
+import { createFilter } from '@rollup/pluginutils';
+import { loadTsConfig } from 'load-tsconfig';
+import { JscConfig, Options as SwcOptions, transform } from '@swc/core';
+import { resolveId } from './resolve.js';
 
-type FilterPattern = ReadonlyArray<string | RegExp> | string | RegExp | null
+type FilterPattern = ReadonlyArray<string | RegExp> | string | RegExp | null;
 
-export interface UnpluginSwcOptions extends Omit<SwcOptions, "exclude"> {
-  include?: FilterPattern
-  exclude?: FilterPattern
-  tsconfigFile?: string | boolean
+export interface UnpluginSwcOptions extends Omit<SwcOptions, 'exclude'> {
+  include?: FilterPattern;
+  exclude?: FilterPattern;
+  tsconfigFile?: string | boolean;
 }
 
-export const swcUnplugin = createUnplugin(
+export const swcUnpluginTs = createUnplugin(
   ({
     tsconfigFile,
     minify,
@@ -24,65 +24,72 @@ export const swcUnplugin = createUnplugin(
   }: UnpluginSwcOptions = {}) => {
     const filter = createFilter(
       include || /\.[jt]sx?$/,
-      exclude || /node_modules/,
-    )
+      exclude || /node_modules/
+    );
 
     return {
-      name: "swc",
+      name: 'swc',
 
       resolveId,
 
       async transform(code, id) {
-        if (!filter(id)) return null
+        if (!filter(id)) return null;
 
         const compilerOptions =
           tsconfigFile === false
             ? {}
             : loadTsConfig(
                 path.dirname(id),
-                tsconfigFile === true ? undefined : tsconfigFile,
-              )?.data?.compilerOptions || {}
+                tsconfigFile === true ? undefined : tsconfigFile
+              )?.data?.compilerOptions || {};
 
-        const isTs = /\.tsx?$/.test(id)
+        const isTs = /\.tsx?$/.test(id);
 
         let jsc: JscConfig = {
           parser: {
-            syntax: isTs ? "typescript" : "ecmascript",
+            syntax: isTs ? 'typescript' : 'ecmascript',
           },
           transform: {},
-        }
+        };
 
         if (compilerOptions.jsx) {
           Object.assign(jsc.parser || {}, {
-            [isTs ? "tsx" : "jsx"]: true,
-          })
+            [isTs ? 'tsx' : 'jsx']: true,
+          });
           Object.assign(jsc.transform || {}, {
             react: {
               pragma: compilerOptions.jsxFactory,
               pragmaFrag: compilerOptions.jsxFragmentFactory,
               importSource: compilerOptions.jsxImportSource,
             },
-          })
+          });
         }
+
+        // https://github.com/vendure-ecommerce/vendure/issues/2099
+        // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#the-usedefineforclassfields-flag-and-the-declare-property-modifier
+        Object.assign(jsc.transform || {}, {
+          useDefineForClassFields:
+            compilerOptions.useDefineForClassFields || false,
+        });
 
         if (compilerOptions.experimentalDecorators) {
           // class name is required by type-graphql to generate correct graphql type
-          jsc.keepClassNames = true
+          jsc.keepClassNames = true;
           Object.assign(jsc.parser || {}, {
             decorators: true,
-          })
+          });
           Object.assign(jsc.transform || {}, {
             legacyDecorator: true,
             decoratorMetadata: compilerOptions.emitDecoratorMetadata,
-          })
+          });
         }
 
         if (compilerOptions.target) {
-          jsc.target = compilerOptions.target
+          jsc.target = compilerOptions.target;
         }
 
         if (options.jsc) {
-          jsc = defu(options.jsc, jsc)
+          jsc = defu(options.jsc, jsc);
         }
 
         const result = await transform(code, {
@@ -90,18 +97,18 @@ export const swcUnplugin = createUnplugin(
           sourceMaps: true,
           ...options,
           jsc,
-        })
+        });
         return {
           code: result.code,
           map: result.map && JSON.parse(result.map),
-        }
+        };
       },
 
       vite: {
         config() {
           return {
             esbuild: false,
-          }
+          };
         },
       },
 
@@ -112,15 +119,15 @@ export const swcUnplugin = createUnplugin(
               sourceMaps: true,
               minify: true,
               filename: chunk.fileName,
-            })
+            });
             return {
               code: result.code,
               map: result.map,
-            }
+            };
           }
-          return null
+          return null;
         },
       },
-    }
-  },
-)
+    };
+  }
+);
