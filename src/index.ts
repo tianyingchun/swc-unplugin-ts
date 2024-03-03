@@ -1,14 +1,14 @@
 import path from 'path';
-import { defu } from 'defu';
-import { createUnplugin } from 'unplugin';
-import { FilterPattern, createFilter } from '@rollup/pluginutils';
-import { loadTsConfig } from 'load-tsconfig';
+import { type FilterPattern, createFilter } from '@rollup/pluginutils';
 import {
-  JscConfig,
-  Options as SwcOptions,
-  TransformConfig,
+  type JscConfig,
+  type Options as SwcOptions,
+  type TransformConfig,
   transform,
 } from '@swc/core';
+import { defu } from 'defu';
+import { loadTsConfig } from 'load-tsconfig';
+import { createUnplugin } from 'unplugin';
 import { resolveId } from './resolve.js';
 
 export type UnpluginSwcOptions = SwcOptions & {

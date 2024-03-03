@@ -4,6 +4,7 @@
     "target": "es2020",
     "module": "NodeNext",
     "strict": true,
+    "baseUrl": "./",
     "esModuleInterop": true,
     "moduleResolution": "NodeNext",
     "skipLibCheck": true,
@@ -12,5 +13,5 @@
     "allowJs": true,
     "resolveJsonModule": true
   },
-  "exclude": ["dist", "test"]
+  "exclude": ["**/node_modules", "**/.*/", "dist", "build", "test"]
 }

@@ -1,10 +1,10 @@
 import path from 'path';
 import { rollup } from 'rollup';
 import { expect, test } from 'vitest';
-import { swcUnpluginTs } from '../dist';
+import { swcUnpluginTs } from '../dist/index.js';
 
 const fixture = (...args: string[]) =>
-  path.join(__dirname, 'fixtures', ...args);
+  path.join(import.meta.dirname, 'fixtures', ...args);
 
 test('rollup', async () => {
   const bundle = await rollup({

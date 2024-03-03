@@ -26,8 +26,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint . --ext .ts,.mts,.tsx,.js,.jsx,.cjs,.mjs --cache --cache-location .cache/eslint/main.eslintcache",
     "prepublishOnly": "npm run build",
     "test": "npm run build && vitest",
     "typecheck": "tsc --noEmit",
