@@ -20,7 +20,14 @@ test('rollup', async () => {
     format: 'cjs',
     dir: fixture('rollup/dist'),
   });
-  expect(output[0].code).toMatchSnapshot();
+  expect(output[0].code).toMatchInlineSnapshot(`
+  "'use strict';
+  
+  var foo = "foo";
+  
+  exports.foo = foo;
+  "
+  `);
 });
 
 test('read tsconfig', async () => {
@@ -81,5 +88,8 @@ test('minify', async () => {
   });
 
   const code = output[0].code;
-  expect(code).toMatchSnapshot();
+  expect(code).toMatchInlineSnapshot(`
+  ""use strict";function _class_call_check(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function")}}var Foo=function Foo(){_class_call_check(this,Foo);this.a=1};exports.Foo=Foo;
+  "
+  `);
 });
