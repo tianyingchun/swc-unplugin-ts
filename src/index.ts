@@ -1,18 +1,27 @@
 import path from 'path';
 import { defu } from 'defu';
 import { createUnplugin } from 'unplugin';
-import { createFilter } from '@rollup/pluginutils';
+import { FilterPattern, createFilter } from '@rollup/pluginutils';
 import { loadTsConfig } from 'load-tsconfig';
-import { JscConfig, Options as SwcOptions, transform } from '@swc/core';
+import {
+  JscConfig,
+  Options as SwcOptions,
+  TransformConfig,
+  transform,
+} from '@swc/core';
 import { resolveId } from './resolve.js';
 
-type FilterPattern = ReadonlyArray<string | RegExp> | string | RegExp | null;
-
-export interface UnpluginSwcOptions extends Omit<SwcOptions, 'exclude'> {
+export type UnpluginSwcOptions = SwcOptions & {
   include?: FilterPattern;
   exclude?: FilterPattern;
   tsconfigFile?: string | boolean;
-}
+};
+
+type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
+  [Property in Key]-?: Type[Property];
+};
+
+type SWCOptions = WithRequiredProperty<JscConfig, 'parser' | 'transform'>;
 
 export const swcUnpluginTs = createUnplugin(
   ({
@@ -45,7 +54,7 @@ export const swcUnpluginTs = createUnplugin(
 
         const isTs = /\.tsx?$/.test(id);
 
-        let jsc: JscConfig = {
+        let jsc: SWCOptions = {
           parser: {
             syntax: isTs ? 'typescript' : 'ecmascript',
           },
@@ -56,7 +65,7 @@ export const swcUnpluginTs = createUnplugin(
           Object.assign(jsc.parser || {}, {
             [isTs ? 'tsx' : 'jsx']: true,
           });
-          Object.assign(jsc.transform || {}, {
+          Object.assign<TransformConfig, TransformConfig>(jsc.transform || {}, {
             react: {
               pragma: compilerOptions.jsxFactory,
               pragmaFrag: compilerOptions.jsxFragmentFactory,
@@ -78,7 +87,7 @@ export const swcUnpluginTs = createUnplugin(
           Object.assign(jsc.parser || {}, {
             decorators: true,
           });
-          Object.assign(jsc.transform || {}, {
+          Object.assign<TransformConfig, TransformConfig>(jsc.transform || {}, {
             legacyDecorator: true,
             decoratorMetadata: compilerOptions.emitDecoratorMetadata,
           });
@@ -89,7 +98,7 @@ export const swcUnpluginTs = createUnplugin(
         }
 
         if (options.jsc) {
-          jsc = defu(options.jsc, jsc);
+          jsc = defu<SWCOptions, SWCOptions[]>(options.jsc, jsc);
         }
 
         const result = await transform(code, {
