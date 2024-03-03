@@ -31,7 +31,7 @@
     "test": "npm run build && vitest",
     "typecheck": "tsc --noEmit",
     "g:changeset": "changeset",
-    "g:release": "yarn g:build-release && changeset publish",
+    "g:release": "yarn build && changeset publish",
     "g:cz": "cz"
   },
   "config": {
