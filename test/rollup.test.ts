@@ -95,8 +95,8 @@ describe('rollup', () => {
 
     const code = output[0].code;
     expect(code).toMatchInlineSnapshot(`
-    ""use strict";function _class_call_check(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function")}}var Foo=function Foo(){_class_call_check(this,Foo);this.a=1};exports.Foo=Foo;
-    "
+      ""use strict";function _class_call_check(instance,Constructor){if(!(instance instanceof Constructor))throw new TypeError("Cannot call a class as a function")}var Foo=function Foo(){_class_call_check(this,Foo);this.a=1};exports.Foo=Foo;
+      "
     `);
   });
 });
